@@ -1,0 +1,57 @@
+#This project was written on Codecademy for the analysis of a data about chocolate bars which is aquired from a website.
+
+import codecademylib3_seaborn
+from bs4 import BeautifulSoup
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+webpage = requests.get("https://content.codecademy.com/courses/beautifulsoup/cacao/index.html")
+#print(webpage.content)
+
+soup = BeautifulSoup(webpage.content, "html.parser")
+
+all_ratings_tags = soup.find_all(attrs={"class": "Rating"})
+
+ratings=[]
+for tag in all_ratings_tags[1:]:
+  ratings.append(float(tag.get_text()))
+
+#print(ratings)
+plt.hist(ratings)
+plt.show()
+
+company_tags = soup.select(".Company")
+companies = []
+
+for tag in company_tags[1:]:
+  companies.append(tag.get_text())
+#print(companies)
+
+dataframe = {"Company": companies, "Ratings": ratings}
+cacao_df = pd.DataFrame.from_dict(dataframe)
+#print(cacao_df)
+
+mean_ratings = cacao_df.groupby("Company").Ratings.mean()
+ten_best = mean_ratings.nlargest(10)
+#print(ten_best)
+
+
+cocoa_percents = []
+cocoa_percent_tags = soup.select(".CocoaPercent")
+
+for tag in cocoa_percent_tags[1:]:
+  percent=float(tag.get_text().strip('%'))
+  cocoa_percents.append(percent)
+#print(cocoa_percents)
+
+cacao_df["CocoaPercentage"] = cocoa_percents
+print(cacao_df)
+
+plt.scatter(cacao_df.CocoaPercentage, cacao_df.Ratings)
+z = np.polyfit(cacao_df.CocoaPercentage, cacao_df.Ratings, 1)
+line_function = np.poly1d(z)
+plt.plot(cacao_df.CocoaPercentage, line_function(cacao_df.CocoaPercentage), "r--")
+plt.show()
+plt.clf()
