@@ -1,0 +1,113 @@
+#This python project was written to retrieve some specific information from a medical insurance data.
+
+import csv
+
+insurance_data = []
+with open('insurance.csv') as insurance_file:
+  insurance_csv = csv.DictReader(insurance_file)
+  for insurance_row in insurance_csv:
+    insurance_data.append(insurance_row)
+#print(insurance_data)
+
+insurance_dict = {}
+for item in insurance_data:
+   age = item['age']
+   insurance_dict[age] = item
+print(insurance_dict)
+#print(len(insurance_dict))
+
+#this code was written to find the average age of the dataset
+def average_age_data(dictionary):
+    sum_of_ages = 0
+    for insurance in dictionary.keys():
+        sum_of_ages += int(insurance)
+        average_age = sum_of_ages / len(dictionary)
+    return ("Average age for this dataset is " + str(average_age) + ".")
+average = average_age_data(insurance_dict)
+#print(average)
+
+#in this code, the average age of people who have at least one child was determined
+def average_age_one_child(dictionary):
+    sum_average_age = 0
+    for children in dictionary.items():
+        if int(children[1]['children']) >= 0:
+            sum_average_age += int(children[0])
+            average_age_with_children = sum_average_age / len(dictionary)
+    return ("Average age of people who have at least one child is " + str(average_age_with_children) + ".")
+average_age_children = average_age_one_child(insurance_dict)
+print(average_age_children)
+
+#this code shows where are the majority of people from
+def major_area(dictionary):
+    majority_area = {}
+    for area in dictionary.items():
+        if area[1]['region'] in majority_area.keys():
+            majority_area[area[1]['region']] += 1
+        else:
+            majority_area[area[1]['region']] = 1
+    return majority_area
+majority_people_area = major_area(insurance_dict)
+print(majority_people_area)
+print('The majority of individuals are from ' + max(majority_people_area) + '.')
+
+#this code was written to make the comparison of the average charge of people who smoke and who do not smoke
+def average_cost(dictionary):
+    sum_smoker = 0
+    sum_nonsmoker = 0
+    for smoke in dictionary.items():
+        if smoke[1]['smoker'] == 'yes':
+            sum_smoker += float(smoke[1]['charges'])
+            average_smoker = sum_smoker / len(smoke[1]['smoker'])
+        elif smoke[1]['smoker'] == 'no':
+            sum_nonsmoker += float(smoke[1]['charges'])
+            average_nonsmoker = sum_nonsmoker / len(smoke[1]['smoker'])
+    return ('Average charge for a smoker is ' + str(average_smoker) + '. Average charge for a non-smoker is ' + str(average_nonsmoker) + '. The difference between average charges of smokers and non-smokers is ' + str(average_smoker - average_nonsmoker) + '.')
+average_smoker_cost = average_cost(insurance_dict)
+print(average_smoker_cost)
+
+#this code shows the female and male percentage within that data
+def gender_majority(dictionary):
+    female = 0
+    male = 0
+    for gender in dictionary.items():
+        if gender[1]['sex'] == 'female':
+            female += 1
+        elif gender[1]['sex'] == 'male':
+            male += 1
+    female_percentage = (female * 100) / len(dictionary)
+    male_percentage = (male * 100) / len(dictionary)
+    return ("The number of females is " + str(female) + " and the number of males is " + str(male) + ". While female percentage is " + str(female_percentage) + "%, male percentage is " + str(male_percentage) + "%.")
+outstanding_gender = gender_majority(insurance_dict)
+print(outstanding_gender)
+
+#this code gives the number of people who live in these four regions which were given in data
+def age_region(dictionary):
+    age_region_southwest = {}
+    age_region_southeast = {}
+    age_region_northwest = {}
+    age_region_northeast = {}
+    sum_age_southwest = 0
+    for age in dictionary.items():
+        if age[1]['region'] == 'southwest':
+            if age[1]['region'] in age_region_southwest.keys():
+                age_region_southwest[age[0]] +=1
+            else:
+                age_region_southwest[age[0]] = 1
+        if age[1]['region'] == 'southeast':
+            if age[1]['region'] in age_region_southeast.keys():
+                age_region_southeast[age[0]] +=1
+            else:
+                age_region_southeast[age[0]] = 1
+        if age[1]['region'] == 'northwest':
+            if age[1]['region'] in age_region_northwest.keys():
+                age_region_northwest[age[0]] +=1
+            else:
+                age_region_northwest[age[0]] = 1
+        if age[1]['region'] == 'northeast':
+            if age[1]['region'] in age_region_northeast.keys():
+                age_region_northeast[age[0]] +=1
+            else:
+                age_region_northeast[age[0]] = 1
+    return ("Number of people who live in southwest, and their ages, is " + str(age_region_southwest) + "/\nNumber of people who live in southeast, and their ages, is " + str(age_region_southeast) + "\nNumber of people who live in northwest, and their ages, is " + str(age_region_northwest) + "\nNumber of people who live in northeast, and their ages, is " + str(age_region_northeast) + ".")
+most_age_region = age_region(insurance_dict)
+print(most_age_region)
