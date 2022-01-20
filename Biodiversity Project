@@ -1,0 +1,120 @@
+#This project was written on Codecademy to perform some data analysis on the conservation statuses of species at National Park Service and to investigate if there are any patterns or themes to the types of species that become endangered by using Pandas, Matplotlib and Scipy modules in Python.
+
+import codecademylib
+import pandas as pd
+from matplotlib import pyplot as plt
+from scipy.stats import chi2_contingency
+
+
+# Loading the Data
+species = pd.read_csv("species_info.csv")
+#print(species.head())
+
+# Inspecting the DataFrame
+species_count = species.scientific_name.nunique()
+#print(species_count)
+species_type = species.category.unique()
+#print(species_type)
+
+conservation_statuses = species.conservation_status.unique()
+#print(conservation_statuses)
+
+# Analyze Species Conservation Status
+conservation_counts = species.groupby("conservation_status").scientific_name.nunique().reset_index()
+print(conservation_counts)
+
+species.fillna('No Intervention', inplace = True)
+conservation_counts_fixed = species.groupby("conservation_status").scientific_name.nunique().reset_index()
+print(conservation_counts_fixed)
+
+
+protection_counts = species.groupby('conservation_status').scientific_name.nunique().reset_index().sort_values(by='scientific_name') 
+print(protection_counts)
+
+plt.figure(figsize=(10,4))
+ax = plt.subplot()
+plt.bar(range(len(protection_counts)), protection_counts.scientific_name.values)
+ax.set_xticks(range(len(protection_counts)))
+ax.set_xticklabels(protection_counts.conservation_status.values)
+plt.ylabel("Number of Species")
+plt.title("Conservation Status by Species")
+plt.show()
+
+
+#Creating a new column based on whether there is an intervention to the conservation status or not
+species['is_protected'] = species.conservation_status != 'No Intervention'
+
+category_counts = species.groupby(['category', 'is_protected']).scientific_name.nunique().reset_index()
+#print category_counts.head()
+
+category_pivot = category_counts.pivot(columns='is_protected',
+                      index='category',
+                      values='scientific_name')\
+                      .reset_index()
+#print category_pivot
+
+#Changing column names from False, True to not_protected, protected
+category_pivot.columns = ["category", "not_protected", "protected"]
+#print(category_pivot)
+
+#Adding a column representing the percentage of protected animals in a particular species
+category_pivot["percent_protected"] = category_pivot.protected / (category_pivot.protected + category_pivot.not_protected)
+print(category_pivot)
+
+
+#Determining whether the difference between mammal-bird and also mammal-reptile is significant or not.
+
+contingency_mb = [[30, 146],
+              [75, 413]]
+
+_, pval_bird_mammal, _, _ = chi2_contingency(contingency_mb)
+print(pval_bird_mammal)
+
+contingency_mr = [[30, 146], [5, 73]]
+_, pval_reptile_mammal, _, _ = chi2_contingency(contingency_mr)
+print(pval_reptile_mammal)
+
+
+#Analysis of the sightings of different species at several national parks for the past 7 days.
+
+observations = pd.read_csv("observations.csv")
+print(observations.head())
+
+species["is_sheep"] = species.common_names.apply(lambda x: "Sheep" in x)
+
+species_is_sheep = species[species.is_sheep]
+print(species_is_sheep)
+
+sheep_species = species[(species.is_sheep) & (species.category == 'Mammal')]
+print(sheep_species)
+
+sheep_observations = pd.merge(sheep_species, observations)
+print(sheep_observations.head())
+
+obs_by_park = sheep_observations.groupby('park_name').observations.sum().reset_index()
+print(obs_by_park)
+
+#Plotting a bar chart showing the different number of observations per week at each park.
+plt.figure(figsize=(16,4))
+ax = plt.subplot()
+plt.bar(range(len(obs_by_park.park_name)), obs_by_park.observations)
+ax.set_xticks(range(len(obs_by_park.park_name)))
+ax.set_xticklabels(obs_by_park.park_name)
+plt.ylabel("Number of Observations")
+plt.title("Observations of Sheep per Week")
+plt.show()
+
+
+#Sample Size Determination for Foot and Mouth disease reduction
+baseline = 15
+
+minimum_detectable_effect = 100 * 5./ 15
+print(minimum_detectable_effect)
+
+sample_size_per_variant = 890
+
+yellowstone_weeks_observing = sample_size_per_variant/507.
+print(yellowstone_weeks_observing)
+
+bryce_weeks_observing = sample_size_per_variant/250.
+print(bryce_weeks_observing)
