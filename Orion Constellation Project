@@ -1,0 +1,36 @@
+#This project was written to visualize the constellation data for the Hayden Planetarium in NYC as both 2D and 3D charts by using Matplotlib.
+
+%matplotlib notebook
+from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+# Orion
+x = [-0.41, 0.57, 0.07, 0.00, -0.29, -0.32,-0.50,-0.23, -0.23]
+y = [4.12, 7.71, 2.36, 9.10, 13.35, 8.13, 7.19, 13.25,13.43]
+z = [2.06, 0.84, 1.56, 2.07, 2.36, 1.72, 0.66, 1.25,1.38]
+
+#Creating 2D Visualization
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
+plt.scatter(x, y, marker = '*', color = 'pink')
+
+plt.title('Orion Constellation in 2D')
+plt.xlabel('X coordinate')
+plt.ylabel('Y coordinate')
+ax.set_facecolor('black')
+plt.show()
+
+#Creating 3D Visualization 
+fig_3d = plt.figure()
+constellation3d = fig_3d.add_subplot(1, 1, 1, projection='3d')
+constellation3d.scatter(x, y, z, marker='*', color='yellow', s=50, label='stars')
+plt.title('Orion Constellation in 3D')
+constellation3d.set_xlabel('X Coordinate')
+constellation3d.set_ylabel('Y Coordinate')
+constellation3d.set_zlabel('Z Coordinate')
+
+constellation3d.w_xaxis.set_pane_color((0, 0, 0, 1.0))
+constellation3d.w_yaxis.set_pane_color((0, 0, 0, 1.0))
+constellation3d.w_zaxis.set_pane_color((0, 0, 0, 1.0))
+
+plt.show()
